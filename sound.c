@@ -1,3 +1,4 @@
+#if _SOUND_H
 /* Audio Support */
 #include "gameboy.h"
 #include "sound.h"
@@ -104,3 +105,4 @@ void fill_audio(void* udata, u8* stream, int len)
         }
     }
 
+#endif // _SOUND_H

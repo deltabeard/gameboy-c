@@ -109,7 +109,9 @@ int main(int argc, char **argv)
     SDL_WM_SetCaption("GameBoy", 0);
 
     // Start Audio
+#if _SOUND_H
     SDLAudioStart();
+#endif // _SOUND_H
 
     // File selection
     if (argc > 1)
