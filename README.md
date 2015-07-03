@@ -7,21 +7,34 @@ A Gameboy emulator written by gregtour. His Javascript port can be found here: h
 - Preliminary sound support (disable by default).
 
 ## Keys:
-Player 1:
+#### Player 1:
+
 Arrow keys
+
 z
+
 x
+
 Right_Shift
+
 Return
 
-Player 2:
+
+#### Player 2:
+
 WASD keys
+
 Space
+
 Backspace
+
 Left_Shift
+
 Escape
 
-Special:
+
+#### Special:
+
 0 = Set framskip to zero (Default)
 
 1 = Set frameskip to one (~3x speedup)
