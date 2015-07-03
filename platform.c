@@ -49,7 +49,7 @@ u32 ColorTo32(u16 cgb)
 	//cy = (299*r + 587*g + 114*b) / 1000;
 	//cb = (-16874*r - 33126*g + 50000*b + 12800000) / 100000;
 	//cr = (50000*r - 41869*g - 8131*b + 12800000) / 100000;
-			
+
 			//*v0++ = *v1++ = (cy<<24) | (cb<<16) | (cy<<8) | cr;
     return 0xFF000000 | (r << 16) | (g << 8) | b;
     }
@@ -235,7 +235,7 @@ int main(int argc, char **argv)
                         KeyRelease(j%NUM_KEYS);
                         break;
                         }
-                if (event.key.keysym.sym == SDLK_q 
+                if (event.key.keysym.sym == SDLK_q
                         || event.key.keysym.sym == SDLK_LCTRL)
                     {
                     quit_seq = 0;
