@@ -104,8 +104,13 @@ int main(int argc, char **argv)
     int     quit_seq;
 
     // Init SDL
+#if _SOUND_H
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
-    screen = SDL_SetVideoMode(800, 600, 32, SDL_HWSURFACE | SDL_DOUBLEBUF /*| SDL_FULLSCREEN*/);
+#else
+    SDL_Init(SDL_INIT_VIDEO);
+#endif
+
+    screen = SDL_SetVideoMode(SCR_WIDTH + 100, SCR_HEIGHT + 100, 32, SDL_HWSURFACE | SDL_DOUBLEBUF /*| SDL_FULLSCREEN*/);
     SDL_WM_SetCaption("GameBoy", 0);
 
     // Start Audio
@@ -263,7 +268,7 @@ int main(int argc, char **argv)
             for (y = 0; y < SCR_HEIGHT; y++)
                 {
                 for (x = 0; x < SCR_WIDTH; x++)
-                    *(s + x + 80 + 800*12) = fb[y/4][x/4];
+                    *(s + x + 800) = fb[y/4][x/4];
                 s += screen->pitch/4;
                 }
 
