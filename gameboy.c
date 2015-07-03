@@ -8,6 +8,9 @@
 #include <string.h>      // memset()
 #include "gameboy.h"
 
+// Declaring bool type in C
+typedef enum { false, true  } bool;
+
 // CART /////////////////////////////
 u8* ROM;
 u8* CRAM;
@@ -25,13 +28,13 @@ u8  cram_enable;
 u8  cram_mode;
 
 // cart mbc / memory info
-u8 CART_MBC[] = 
+u8 CART_MBC[] =
     {
     0, 1, 1, 1,-1, 2, 2,-1, 0, 0,-1, 0, 0, 0,-1, 3,
     3, 3, 3, 3,-1,-1,-1,-1,-1, 5, 5, 5, 5, 5, 5, 0
     };
 
-u8 CART_RAM[] = 
+u8 CART_RAM[] =
     {
     0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0,
     1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0
@@ -54,18 +57,18 @@ u8  DMG_BIOS[0x100] =
     0x31, 0xFE, 0xFF, 0xAF, 0x21, 0xFF, 0x9F, 0x32, 0xCB, 0x7C, 0x20, 0xFB, 0x21, 0x26, 0xFF, 0x0E,
     0x11, 0x3E, 0x80, 0x32, 0xE2, 0x0C, 0x3E, 0xF3, 0xE2, 0x32, 0x3E, 0x77, 0x77, 0x3E, 0xFC, 0xE0,
     0x47, 0x11, 0x04, 0x01, 0x21, 0x10, 0x80, 0x1A, 0xCD, 0x95, 0x00, 0xCD, 0x96, 0x00, 0x13, 0x7B,
-    0xFE, 0x34, 0x20, 0xF3, 0x11, 0xD8, 0x00, 0x06, 0x08, 0x1A, 0x13, 0x22, 0x23, 0x05, 0x20, 0xF9, 
+    0xFE, 0x34, 0x20, 0xF3, 0x11, 0xD8, 0x00, 0x06, 0x08, 0x1A, 0x13, 0x22, 0x23, 0x05, 0x20, 0xF9,
     0x3E, 0x19, 0xEA, 0x10, 0x99, 0x21, 0x2F, 0x99, 0x0E, 0x0C, 0x3D, 0x28, 0x08, 0x32, 0x0D, 0x20,
-    0xF9, 0x2E, 0x0F, 0x18, 0xF3, 0x67, 0x3E, 0x64, 0x57, 0xE0, 0x42, 0x3E, 0x91, 0xE0, 0x40, 0x04, 
-    0x1E, 0x02, 0x0E, 0x0C, 0xF0, 0x44, 0xFE, 0x90, 0x20, 0xFA, 0x0D, 0x20, 0xF7, 0x1D, 0x20, 0xF2, 
-    0x0E, 0x13, 0x24, 0x7C, 0x1E, 0x83, 0xFE, 0x62, 0x28, 0x06, 0x1E, 0xC1, 0xFE, 0x64, 0x20, 0x06, 
-    0x7B, 0xE2, 0x0C, 0x3E, 0x87, 0xE2, 0xF0, 0x42, 0x90, 0xE0, 0x42, 0x15, 0x20, 0xD2, 0x05, 0x20, 
-    0x4F, 0x16, 0x20, 0x18, 0xCB, 0x4F, 0x06, 0x04, 0xC5, 0xCB, 0x11, 0x17, 0xC1, 0xCB, 0x11, 0x17, 
-    0x05, 0x20, 0xF5, 0x22, 0x23, 0x22, 0x23, 0xC9, 0xCE, 0xED, 0x66, 0x66, 0xCC, 0x0D, 0x00, 0x0B, 
-    0x03, 0x73, 0x00, 0x83, 0x00, 0x0C, 0x00, 0x0D, 0x00, 0x08, 0x11, 0x1F, 0x88, 0x89, 0x00, 0x0E, 
-    0xDC, 0xCC, 0x6E, 0xE6, 0xDD, 0xDD, 0xD9, 0x99, 0xBB, 0xBB, 0x67, 0x63, 0x6E, 0x0E, 0xEC, 0xCC, 
-    0xDD, 0xDC, 0x99, 0x9F, 0xBB, 0xB9, 0x33, 0x3E, 0x3C, 0x42, 0xB9, 0xA5, 0xB9, 0xA5, 0x42, 0x3C, 
-    0x21, 0x04, 0x01, 0x11, 0xA8, 0x00, 0x1A, 0x13, 0xBE, 0x20, 0xFE, 0x23, 0x7D, 0xFE, 0x34, 0x20, 
+    0xF9, 0x2E, 0x0F, 0x18, 0xF3, 0x67, 0x3E, 0x64, 0x57, 0xE0, 0x42, 0x3E, 0x91, 0xE0, 0x40, 0x04,
+    0x1E, 0x02, 0x0E, 0x0C, 0xF0, 0x44, 0xFE, 0x90, 0x20, 0xFA, 0x0D, 0x20, 0xF7, 0x1D, 0x20, 0xF2,
+    0x0E, 0x13, 0x24, 0x7C, 0x1E, 0x83, 0xFE, 0x62, 0x28, 0x06, 0x1E, 0xC1, 0xFE, 0x64, 0x20, 0x06,
+    0x7B, 0xE2, 0x0C, 0x3E, 0x87, 0xE2, 0xF0, 0x42, 0x90, 0xE0, 0x42, 0x15, 0x20, 0xD2, 0x05, 0x20,
+    0x4F, 0x16, 0x20, 0x18, 0xCB, 0x4F, 0x06, 0x04, 0xC5, 0xCB, 0x11, 0x17, 0xC1, 0xCB, 0x11, 0x17,
+    0x05, 0x20, 0xF5, 0x22, 0x23, 0x22, 0x23, 0xC9, 0xCE, 0xED, 0x66, 0x66, 0xCC, 0x0D, 0x00, 0x0B,
+    0x03, 0x73, 0x00, 0x83, 0x00, 0x0C, 0x00, 0x0D, 0x00, 0x08, 0x11, 0x1F, 0x88, 0x89, 0x00, 0x0E,
+    0xDC, 0xCC, 0x6E, 0xE6, 0xDD, 0xDD, 0xD9, 0x99, 0xBB, 0xBB, 0x67, 0x63, 0x6E, 0x0E, 0xEC, 0xCC,
+    0xDD, 0xDC, 0x99, 0x9F, 0xBB, 0xB9, 0x33, 0x3E, 0x3C, 0x42, 0xB9, 0xA5, 0xB9, 0xA5, 0x42, 0x3C,
+    0x21, 0x04, 0x01, 0x11, 0xA8, 0x00, 0x1A, 0x13, 0xBE, 0x20, 0xFE, 0x23, 0x7D, 0xFE, 0x34, 0x20,
     0xF5, 0x06, 0x19, 0x78, 0x86, 0x23, 0x05, 0x20, 0xFB, 0x86, 0x20, 0xFE, 0x3E, 0x01, 0xE0, 0x50
     };
 
@@ -157,7 +160,7 @@ u8 READ(u16 addr)
         case 0x2:
         case 0x3:
             return ROM[addr];
-            
+
         case 0x4:
         case 0x5:
         case 0x6:
@@ -166,12 +169,12 @@ u8 READ(u16 addr)
                 return ROM[addr + ((rom_bank & 0x1F) - 1)*ROM_BANK_SIZE];
             else
                 return ROM[addr + (rom_bank-1)*ROM_BANK_SIZE];
-            
+
         case 0x8:
         case 0x9:
             return VRAM[addr - VRAM_ADDR];
             //return VRAM[addr - VRAM_ADDR + vram_bank*VRAM_BANK_SIZE];
-            
+
         case 0xA:
         case 0xB:
             if (gb_cram && cram_enable)
@@ -184,16 +187,16 @@ u8 READ(u16 addr)
                     return CRAM[addr - CART_RAM_ADDR];
                 }
             return 0;
-        
+
         case 0xC:
             return WRAM[addr - WRAM_0_ADDR];
-        
+
         case 0xD:
             return WRAM[addr - WRAM_1_ADDR + wram_bank*WRAM_BANK_SIZE];
-        
+
         case 0xE:
             return WRAM[addr - ECHO_ADDR];
-        
+
         case 0xF:
             if (addr < OAM_ADDR)
                 return WRAM[addr - ECHO_ADDR + (wram_bank-1)*WRAM_BANK_SIZE];
@@ -210,16 +213,16 @@ u8 READ(u16 addr)
                     return 0xC0 | R_P1;
                 case 0x01: return R_SB;
                 case 0x02: return R_SC;
-                    
-                // Timer Registers                    
+
+                // Timer Registers
                 case 0x04: return R_DIV;
                 case 0x05: return R_TIMA;
                 case 0x06: return R_TMA;
                 case 0x07: return R_TAC;
-                    
+
                 // Interrupt Flag Register
                 case 0x0F: return R_IF;
-                    
+
                 // Sound Registers
                 case 0x10: return R_NR10;
                 case 0x11: return R_NR11;
@@ -240,11 +243,11 @@ u8 READ(u16 addr)
                 case 0x24: return R_NR50;
                 case 0x25: return R_NR51;
                 case 0x26: return R_NR52;
-                
+
                 // LCD Registers
                 case 0x40: return R_LCDC;
-                case 0x41: 
-                    return (R_STAT & STAT_USER_BITS) | 
+                case 0x41:
+                    return (R_STAT & STAT_USER_BITS) |
                         (R_LCDC & LCDC_ENABLE ? lcd_mode : LCD_VBLANK);
                 case 0x42: return R_SCY;
                 case 0x43: return R_SCX;
@@ -256,10 +259,10 @@ u8 READ(u16 addr)
 
                 // CGB vram bank
                 case 0x4F: return vram_bank;
-                    
+
                 // DMA Register
                 case 0x46: return R_DMA;
-                
+
                 // Drawing Registers
                 case 0x47: return R_BGP;
                 case 0x48: return R_OBP0;
@@ -282,10 +285,10 @@ u8 READ(u16 addr)
 
                 // CGB wram bank
                 case 0x70: return wram_bank;
-                    
+
                 // Interrupt Enable Register
                 case 0xFF: return R_IE;
-                
+
                 // High RAM
                 default:   return HRAM[addr - HRAM_ADDR];
                 }
@@ -305,7 +308,7 @@ void WRITE(u16 addr, u8 val)
             else if (gb_mbc > 0 && gb_cram)
                 cram_enable = ((val & 0x0F) == 0x0A);
             return;
-            
+
         case 0x2:
             if (gb_mbc == 5)
                 {
@@ -324,20 +327,20 @@ void WRITE(u16 addr, u8 val)
             else if (gb_mbc == 2 && addr & 0x10)
                 {
                 rom_bank = val & 0x0F;
-                if (!rom_bank) 
+                if (!rom_bank)
                     rom_bank++;
                 }
             else if (gb_mbc == 3)
                 {
                 rom_bank = val & 0x7F;
-                if (!rom_bank) 
+                if (!rom_bank)
                     rom_bank++;
                 }
             else if (gb_mbc == 5)
                 rom_bank = (val & 0x01) << 8 | (rom_bank & 0xFF);
             rom_bank = rom_bank % rom_banks;
             return;
-            
+
         case 0x4:
         case 0x5:
             if (gb_mbc == 1)
@@ -351,18 +354,18 @@ void WRITE(u16 addr, u8 val)
             else if (gb_mbc == 5)
                 cram_bank = (val & 0x0F);
             return;
-            
+
         case 0x6:
         case 0x7:
             //if (gb_mbc == 1 && gb_cram)
             cram_mode = (val & 1);
             return;
-            
+
         case 0x8:
         case 0x9:
             VRAM[addr - VRAM_ADDR + vram_bank*VRAM_BANK_SIZE] = val;
             return;
-            
+
         case 0xA:
         case 0xB:
             if (gb_cram && cram_enable)
@@ -376,19 +379,19 @@ void WRITE(u16 addr, u8 val)
                     CRAM[addr - CART_RAM_ADDR] = val;
                 }
             return;
-        
+
         case 0xC:
             WRAM[addr - WRAM_0_ADDR] = val;
             return;
-        
+
         case 0xD:
             WRAM[addr - WRAM_1_ADDR + wram_bank*WRAM_BANK_SIZE] = val;
             return;
-        
+
         case 0xE:
             WRAM[addr - ECHO_ADDR] = val;
             return;
-        
+
         case 0xF:
             if (addr < OAM_ADDR)
                 {
@@ -411,8 +414,8 @@ void WRITE(u16 addr, u8 val)
                     return;
                 case 0x01: R_SB = val;      return;
                 case 0x02: R_SC = val;      return;
-                    
-                // Timer Registers                    
+
+                // Timer Registers
                 case 0x04: R_DIV = 0x00;    return;
                 case 0x05: R_TIMA = val;    return;
                 case 0x06: R_TMA = val;     return;
@@ -421,12 +424,12 @@ void WRITE(u16 addr, u8 val)
                     tac_enable = R_TAC & TAC_ENABLE;
                     tac_rate = R_TAC & TAC_RATE;
                     return;
-                    
+
                 // Interrupt Flag Register
                 case 0x0F:
                     R_IF = val;
                     return;
-                    
+
                 // Sound Registers
                 case 0x10: R_NR10 = val;    return;
                 case 0x11: R_NR11 = val;    return;
@@ -447,7 +450,7 @@ void WRITE(u16 addr, u8 val)
                 case 0x24: R_NR50 = val;    return;
                 case 0x25: R_NR51 = val;    return;
                 case 0x26: R_NR52 = val;    return;
-                
+
                 // LCD Registers
                 case 0x40: R_LCDC = val;    return;
                 case 0x41: R_STAT = val;    return;
@@ -455,14 +458,14 @@ void WRITE(u16 addr, u8 val)
                 case 0x43: R_SCX = val;     return;
                 case 0x44: R_LY = val;      return;
                 case 0x45: R_LYC = val;     return;
-                    
+
                 // DMA Register
                 case 0x46:
                     R_DMA = (val % 0xF1);
                     for (u8 i = 0; i < OAM_SIZE; i++)
                         OAM[i] = READ((R_DMA << 8) + i);
                     return;
-                
+
                 // DGM Palette Registers
                 case 0x47:
                     R_BGP = val;
@@ -521,7 +524,7 @@ void WRITE(u16 addr, u8 val)
                 case 0x54:
                     if (cgb_enable && (R_HDMA & HDMA_OFF))
                         R_HDMAD = 0x8000 | (R_HDMAD & 0x1F00) | (val & 0x00F0);
-                    return;  
+                    return;
                 case 0x55:
                     if (val & HDMA_HBLANK)
                         {
@@ -569,10 +572,10 @@ void WRITE(u16 addr, u8 val)
                             wram_bank = 0x1;
                         }
                     return;
-                    
+
                 // Interrupt Enable Register
                 case 0xFF: R_IE = val;      return;
-                
+
                 // High RAM
                 default:
                     HRAM[addr - HRAM_ADDR] = val;
@@ -640,7 +643,7 @@ void StepCPU()
         {
         // disable halt
         gb_halt = 0;
-        
+
         if (gb_ime)
             {
             // disable interrupts
@@ -649,7 +652,7 @@ void StepCPU()
             // PUSH PC
             WRITE(--SP, PC >> 8);
             WRITE(--SP, PC & 0xFF);
-            
+
             // Call interrupt handler
             if (R_IF & R_IE & VBLANK_INTR)
                 {
@@ -679,7 +682,7 @@ void StepCPU()
             // PushCallstack( 0xee00 | PC);
             }
         }
-    
+
     // Execute one instruction
     OP = (gb_halt ? 0x00 : READ(PC++));
     inst_cycles = OP_CYCLES[OP];
@@ -717,7 +720,7 @@ void StepCPU()
             break;
         case 0x07: // RLCA
             R_A = (R_A << 1) | (R_A >> 7);
-            F_Z = 0;            
+            F_Z = 0;
             F_N = 0;
             F_H = 0;
             F_C = (R_A & 0x01);
@@ -807,7 +810,7 @@ void StepCPU()
         case 0x17: // RLA
             N = R_A;
             R_A = R_A << 1 | F_C;
-            F_Z = 0;            
+            F_Z = 0;
             F_N = 0;
             F_H = 0;
             F_C = (N >> 7) & 0x01;
@@ -897,7 +900,7 @@ void StepCPU()
             D2 = R_A & 0x0F;
             if (F_N)
                 {
-                if (F_H) 
+                if (F_H)
                     {
 //                    if (D2 >= 6)
                         D2 -= 6;
@@ -2155,7 +2158,7 @@ void StepCPU()
             call = true;
             break;
         }
-        
+
     // debugging
     // if (call) PushCallstack(PC);
 
@@ -2173,10 +2176,10 @@ void StepCPU()
             jump = false; //
         //std::cerr << std::hex << PC << std::endl;
         }*/
-    
+
     // CPU timing
     cpu_count += inst_cycles;
-    
+
     // LCD timing
     lcd_count += inst_cycles;
     // New scanline
@@ -2196,14 +2199,14 @@ void StepCPU()
 
         // next line
         R_LY = (R_LY + 1) % LCD_VERT_LINES;
-        
+
         // VBLANK Start
         if (R_LY == LCD_HEIGHT)
             {
             //OutputDebugString("---- VBLANK ----\n");
             lcd_mode = LCD_VBLANK;
             gb_frame = 1;
-            
+
             R_IF |= VBLANK_INTR;
             if (R_STAT & STAT_MODE_1_INTR)
                 R_IF |= LCDC_INTR;
@@ -2235,14 +2238,14 @@ void StepCPU()
         lcd_mode = LCD_SEARCH_OAM;
         if (R_STAT & STAT_MODE_2_INTR)
             R_IF |= LCDC_INTR;
-        }        
+        }
     // update LCD
     else if (lcd_mode == LCD_SEARCH_OAM && lcd_count >= LCD_MODE_3_CYCLES * (cgb_double + 1))
         {
         lcd_mode = LCD_TRANSFER;
         LCDDrawLine();
         }
-        
+
     // DIV register timing
     div_count += inst_cycles;
     if (div_count > DIV_CYCLES)
@@ -2250,7 +2253,7 @@ void StepCPU()
         R_DIV++;
         div_count -= DIV_CYCLES;
         }
-    
+
     // TIMA register timing
     if (tac_enable)
         {
@@ -2283,7 +2286,7 @@ void ExecuteCB()
     R  = (CBOP & 0x7);
     B  = (CBOP >> 3) & 0x7;
     D  = (CBOP >> 3) & 0x1;
-    
+
     // retrieve byte to manipulate
     switch (R)
         {
@@ -2296,7 +2299,7 @@ void ExecuteCB()
         case 6: val = READ(R_HL); break;
         case 7: val = R_A; break;
         }
-    
+
     // bit-fiddling OPs
     writeback = 1;
     switch (CBOP >> 6)
@@ -2381,11 +2384,11 @@ void ExecuteCB()
             val |= (0x1 << B);
             break;
         }
-        
+
     // save result
     if (writeback)
         {
-        switch (R) 
+        switch (R)
             {
             case 0: R_B = val; break;
             case 1: R_C = val; break;
@@ -2630,7 +2633,7 @@ void LCDDrawLineMono()
 
                 // y flip
                 u8 py = R_LY - OY + 16;
-                if (OF & OBJ_FLIP_Y) 
+                if (OF & OBJ_FLIP_Y)
                     py = (R_LCDC & LCDC_OBJ_SIZE ? 15 : 7) - py;
 
                 // fetch the tile
@@ -2661,7 +2664,7 @@ void LCDDrawLineMono()
                     {
                     c = (t1 & 0x1) | ((t2 & 0x1) << 1);
                     // check transparency / sprite overlap / background overlap
-                    if (c && OX <= SX[X] && 
+                    if (c && OX <= SX[X] &&
                         !((OF & OBJ_PRIORITY) && ((gb_fb[R_LY][X] & 0x3) && SX[X] == 0xFE)))
 //                    if (c && OX <= SX[X] && !(OF & OBJ_PRIORITY && gb_fb[R_LY][X] & 0x3))
                         {
@@ -2904,7 +2907,7 @@ void LCDDrawLineColor()
 
                 // y flip
                 u8 py = R_LY - OY + 16;
-                if (OF & OBJ_FLIP_Y) 
+                if (OF & OBJ_FLIP_Y)
                     py = (R_LCDC & LCDC_OBJ_SIZE ? 15 : 7) - py;
 
                 // fetch the tile
@@ -2937,8 +2940,8 @@ void LCDDrawLineColor()
                     {
                     c = (t1 & 0x1) | ((t2 & 0x1) << 1);
                     // check transparency / bg overlap / master bg priority / sprite priority and bg priority
-                    if (c && 
-                        ((SX[X] & 0x7) == 0 || 
+                    if (c &&
+                        ((SX[X] & 0x7) == 0 ||
                             (R_LCDC & 0x1) == 0 ||
                                 ((OF & OBJ_PRIORITY) == 0 && (SX[X] & BMAP_PRIORITY) == 0)))
                         {
@@ -2957,7 +2960,7 @@ void LCDDrawLineColor()
 
 
 // SOUND ////////////////////////////
-// 
+//
 
 // GAMEBOY //////////////////////////
 void LoadROM(u8* rom, u32 size, u8* save, u32 save_size)
@@ -2997,7 +3000,7 @@ void PowerUp()
     cram_bank   = 0x00;
     cram_enable = 0;
     cram_mode   = 0;
-    
+
     // CPU registers
     R_A = (cgb_enable ? 0x11 : 0x01);
     F_Z = 0x01;
@@ -3016,7 +3019,7 @@ void PowerUp()
         PC  = 0x0000;
     else
         PC  = 0x0100;
-    
+
     // timer
     cpu_count   = 0x0000;
     lcd_count   = 0x0000;
@@ -3024,7 +3027,7 @@ void PowerUp()
     tima_count  = 0x0000;
     tac_enable  = 0x00;
     tac_rate    = 0x00;
-    
+
     // register initialization
     R_TIMA      = 0x00;
     R_TMA       = 0x00;
