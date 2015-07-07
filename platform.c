@@ -27,8 +27,8 @@ u16  fps;
 
 // screen space
 SDL_Surface* screen = NULL;
-const int SCR_WIDTH = 640;
-const int SCR_HEIGHT = 576;
+const int SCR_WIDTH = 160;
+const int SCR_HEIGHT = 144;
 u32 fb[LCD_HEIGHT][LCD_WIDTH];
 
 // color schemes
@@ -110,7 +110,7 @@ int main(int argc, char **argv)
     SDL_Init(SDL_INIT_VIDEO);
 #endif
 
-    screen = SDL_SetVideoMode(SCR_WIDTH + 1, SCR_HEIGHT + 1, 32, SDL_HWSURFACE | SDL_DOUBLEBUF /*| SDL_FULLSCREEN*/);
+    screen = SDL_SetVideoMode(SCR_WIDTH, SCR_HEIGHT, 32, SDL_HWSURFACE | SDL_DOUBLEBUF /*| SDL_FULLSCREEN*/);
     SDL_WM_SetCaption("GameBoy", 0);
 
     // Start Audio
@@ -268,7 +268,7 @@ int main(int argc, char **argv)
             for (y = 0; y < SCR_HEIGHT; y++)
                 {
                 for (x = 0; x < SCR_WIDTH; x++)
-                    *(s + x) = fb[y/4][x/4];
+                    *(s + x) = fb[y*LCD_HEIGHT/SCR_HEIGHT][x*LCD_WIDTH/SCR_WIDTH];
                 s += screen->pitch/4;
                 }
 
