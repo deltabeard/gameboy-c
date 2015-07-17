@@ -302,7 +302,7 @@ int main(int argc, char **argv)
 		save_f = fopen(save_file, "wb");
 		if (save_f)
 		{
-			fseek(save_f,0,SEEK_SET);
+			fseek(save_f, 0, SEEK_SET);
 			fwrite(save, 1, save_size, save_f);
 			fclose(save_f);
 		}

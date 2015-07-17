@@ -1,11 +1,14 @@
-/**********
-  gameboy.c
-  --------------------
-  GameBoy emulator
-Credits: Greg Tourville
-*/
+/*
+ * gameboy.c
+ *
+ * A Gameboy emulator
+ * Created by Greg Tourville
+ *
+ */
 
 #include <string.h>      // memset()
+#include <unistd.h>
+
 #include "gameboy.h"
 
 // Declaring bool type in C
@@ -120,6 +123,12 @@ u8 R_WY;    u8 R_WX;    u8 R_IE;
 
 // SOUND
 u8 R_NR13;
+
+// VIDEO ////////////////////////////
+u8 WY, WYC, WX;
+u8 X, Y;
+u8 gb_frameskip = 0;
+u8 gb_framecount = 0;
 
 // CGB REGISTERS
 u8 R_HDMA;  u8 R_BCPS;  u8 R_OCPS;  u8 R_KEY1;
@@ -612,6 +621,8 @@ u8  D1, D2; // DAA
 void RunFrame()
 {
 	gb_frame = 0;
+	/* Make CPU sleep until next frame is to be drawn */
+	usleep(15000);
 	while (!gb_frame)
 		StepCPU();
 }
@@ -2385,11 +2396,6 @@ void KeyRelease(u8 key)
 	//R_IF |= CONTROL_INTR;
 }
 
-// VIDEO ////////////////////////////
-u8 WY, WYC, WX;
-u8 X, Y;
-u8 gb_frameskip = 0;
-u8 gb_framecount = 0;
 
 void SetFrameSkip(u8 f)
 {
