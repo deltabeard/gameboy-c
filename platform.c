@@ -140,7 +140,12 @@ int main(int argc, char **argv)
 	}
 
 	// Load ROM file
-	rom_f = fopen(rom_file, "rb");
+	if((rom_f = fopen(rom_file, "rb")) == NULL)
+	{
+		printf("%s: File \"%s\" not found.\n", __func__, rom_file);
+		return -1;
+	}
+
 	fseek(rom_f, 0, SEEK_END);
 	rom_size = ftell(rom_f);
 	rewind(rom_f);
