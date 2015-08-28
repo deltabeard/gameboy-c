@@ -2,11 +2,13 @@
 A Gameboy emulator written by gregtour. His Javascript port can be found here: http://greg.team-duck.com/emu/gameboy .
 
 ## Features:
-- Very small (about 53KiB compiled).
-- SDL and X only dependencies.
-- Preliminary sound support (disable by default).
+- Very small (about 36KiB compiled).
+- SDL and X11 only dependencies on Linux.
+- Preliminary sound support (disabled by default).
 
-## Keys:
+Default input can be changed in platform.c.
+
+## Default Keys:
 #### Player 1:
 
 Arrow keys
