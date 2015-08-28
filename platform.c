@@ -4,13 +4,14 @@
  ********************/
 // v0.04
 
-// File IO
+// Includes
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 // SDL
-#include "SDL.h"
-#include "SDL_main.h"
+#include <SDL/SDL.h>
+#include <SDL/SDL_main.h>
 
 // GameBoy
 #include "gameboy.h"
@@ -103,6 +104,22 @@ int main(int argc, char **argv)
 	u32*    s;
 	int     quit_seq;
 
+	// File selection
+	if (argc > 1)
+		rom_file = argv[1];
+	else
+	{
+		printf("%s: Specify a file to open.", __func__);
+		return -1;
+	}
+
+	// Load ROM file
+	if((rom_f = fopen(rom_file, "rb")) == NULL)
+	{
+		printf("%s: File \"%s\" not found.\n", __func__, rom_file);
+		return -1;
+	}
+
 	// Init SDL
 #if _SOUND_H
 	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
@@ -118,18 +135,13 @@ int main(int argc, char **argv)
 	SDLAudioStart();
 #endif // _SOUND_H
 
-	// File selection
-	if (argc > 1)
-		rom_file = argv[1];
-	else
-		return 1;
-
 	// Need to specify ROM
 	if (!rom_file || !rom_file[0])
 		return 0;
 	else
 	{
-		char* s = rom_file;
+		char *s = rom_file;
+
 		for (i = 0; rom_file[i] != '\0'; i++)
 		{
 			if (rom_file[i] == '\\' || rom_file[i] == '/')
@@ -137,13 +149,6 @@ int main(int argc, char **argv)
 		}
 		sprintf(window_caption, "GameBoy - %s", s);
 		SDL_WM_SetCaption(window_caption, 0);
-	}
-
-	// Load ROM file
-	if((rom_f = fopen(rom_file, "rb")) == NULL)
-	{
-		printf("%s: File \"%s\" not found.\n", __func__, rom_file);
-		return -1;
 	}
 
 	fseek(rom_f, 0, SEEK_END);
@@ -163,7 +168,7 @@ int main(int argc, char **argv)
 	save_f = fopen(save_file, "rb");
 	if (save_f)
 	{
-		fseek(save_f,0,SEEK_SET);
+		fseek(save_f, 0, SEEK_SET);
 		fread(save, sizeof(u8), save_size, save_f);
 		fclose(save_f);
 	}
@@ -249,6 +254,7 @@ int main(int argc, char **argv)
 		}
 
 		old_ticks = SDL_GetTicks();
+		usleep(16 - (new_ticks - old_ticks));
 
 		// emulate frame
 		RunFrame();

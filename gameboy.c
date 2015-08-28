@@ -621,8 +621,6 @@ u8  D1, D2; // DAA
 void RunFrame()
 {
 	gb_frame = 0;
-	/* Make CPU sleep until next frame is to be drawn */
-	usleep(15000);
 	while (!gb_frame)
 		StepCPU();
 }
