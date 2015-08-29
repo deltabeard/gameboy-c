@@ -26,12 +26,6 @@ u32  f0_ticks;
 u32  f1_ticks;
 u16  fps;
 
-// screen space
-SDL_Surface* screen = NULL;
-const int SCR_WIDTH = 160;
-const int SCR_HEIGHT = 144;
-u32 fb[LCD_HEIGHT][LCD_WIDTH];
-
 // color schemes
 u32 COLORS_Y[4] = {0xFFFFFFFF, 0x99999999, 0x44444444, 0x00000000};
 u32 COLORS_R[4] = {0xFFFFFFFF, 0xFFFF9999, 0xFF444499, 0x00000000};
@@ -80,8 +74,8 @@ u32 KEYS[] =
 // strings
 char  window_caption[100];
 char  window_caption_fps[100];
-char  rom_file_buf[260];
-char* rom_file = rom_file_buf;
+//char  rom_file_buf[260];
+//char* rom_file = rom_file_buf;
 char  save_file[260];
 
 // pointers
@@ -103,15 +97,56 @@ int main(int argc, char **argv)
 	int     delay;
 	u32*    s;
 	int     quit_seq;
+	SDL_Surface* screen = NULL;
+	int		SCR_WIDTH;
+	int		SCR_HEIGHT;
+	u32		fb[LCD_HEIGHT][LCD_WIDTH];
+	char	*rom_file = NULL;
 
-	// File selection
-	if (argc > 1)
-		rom_file = argv[1];
-	else
+	int c;
+	int magnify = 1;
+
+	while((c = getopt(argc, argv, "hm:f:")) != -1)
 	{
-		printf("%s: Specify a file to open.\n", __func__);
+		switch (c) {
+			case 'h':
+				printf("Usage: %s [-m magnification] -f GB_ROM\n", argv[0]);
+				return 0;
+			case 'm':
+				magnify = atoi(optarg);
+				break;
+			case 'f':
+				rom_file = optarg;
+				break;
+			default:
+				printf("?? getopt returned character code 0%o ??\n", c);
+				return -1;
+		}
+	}
+
+	if(rom_file == NULL)
+	{
+		printf("Please specify a file to load.\nUse -h to see help.\n");
 		return -1;
 	}
+
+	/* A magnification higher than 10 will make emulation very slow */
+	if(magnify > 10)
+	{
+		printf("You want to use a magnification of %d times!?\n"
+				"Don't be ridiculous\n"
+				"Error: The maximum magnification is 10.", magnify);
+		return -1;
+	}
+
+	if(magnify < 1)
+	{
+		printf("Error: Magnification has to be at least 1.\n");
+		return -1;
+	}
+
+	SCR_WIDTH = 160 * magnify;
+	SCR_HEIGHT = 144 * magnify;
 
 	// Load ROM file
 	if((access(rom_file, F_OK) != -1) &&
