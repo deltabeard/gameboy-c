@@ -1,5 +1,5 @@
 /*************
- * gameboy.h * 
+ * gameboy.h *
 *************/
 
 #define SDL_1_2     0

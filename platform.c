@@ -109,12 +109,18 @@ int main(int argc, char **argv)
 		rom_file = argv[1];
 	else
 	{
-		printf("%s: Specify a file to open.", __func__);
+		printf("%s: Specify a file to open.\n", __func__);
 		return -1;
 	}
 
 	// Load ROM file
-	if((rom_f = fopen(rom_file, "rb")) == NULL)
+	if((access(rom_file, F_OK) != -1) &&
+			((rom_f = fopen(rom_file, "rb")) != NULL))
+	{
+		printf("%s: Opening %s.\n", __func__, rom_file);
+		(rom_f = fopen(rom_file, "rb")) == NULL;
+	}
+	else
 	{
 		printf("%s: File \"%s\" not found.\n", __func__, rom_file);
 		return -1;
@@ -135,21 +141,8 @@ int main(int argc, char **argv)
 	SDLAudioStart();
 #endif // _SOUND_H
 
-	// Need to specify ROM
-	if (!rom_file || !rom_file[0])
-		return 0;
-	else
-	{
-		char *s = rom_file;
-
-		for (i = 0; rom_file[i] != '\0'; i++)
-		{
-			if (rom_file[i] == '\\' || rom_file[i] == '/')
-				s = &rom_file[i+1];
-		}
-		sprintf(window_caption, "GameBoy - %s", s);
-		SDL_WM_SetCaption(window_caption, 0);
-	}
+	sprintf(window_caption, "GameBoy - %s", rom_file);
+	SDL_WM_SetCaption(window_caption, 0);
 
 	fseek(rom_f, 0, SEEK_END);
 	rom_size = ftell(rom_f);
