@@ -5,3 +5,4 @@ gameboy.exe
 # Any ROMs and SAV files
 *.gb*
 *.sav
+*.stackdump

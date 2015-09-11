@@ -106,6 +106,7 @@ int main(int argc, char **argv)
 	int c;
 	int magnify = 1;
 
+
 	while((c = getopt(argc, argv, "hm:f:")) != -1)
 	{
 		switch (c) {
@@ -167,8 +168,14 @@ int main(int argc, char **argv)
 #else
 	SDL_Init(SDL_INIT_VIDEO);
 #endif
+	
 
-	screen = SDL_SetVideoMode(SCR_WIDTH, SCR_HEIGHT, 32, SDL_HWSURFACE | SDL_DOUBLEBUF /*| SDL_FULLSCREEN*/);
+	if((screen = SDL_SetVideoMode(SCR_WIDTH, SCR_HEIGHT, 32, SDL_HWSURFACE | SDL_DOUBLEBUF /*| SDL_FULLSCREEN*/)) == NULL)
+	{
+		printf("Error at %d: screen is NULL\nSDL Error: %s\nRefusing to continue.\n", __LINE__, SDL_GetError());
+		return -1;
+	}
+
 	SDL_WM_SetCaption("GameBoy", 0);
 
 	// Start Audio
@@ -300,7 +307,17 @@ int main(int argc, char **argv)
 						fb[y][x] = color_map[gb_fb[y][x] & 3];
 
 			// render
-			SDL_LockSurface(screen);
+			if(screen == NULL)
+			{
+				printf("Error at %d: screen is NULL\nExiting.\n");
+				return -1;
+			}
+			
+			if(SDL_LockSurface(screen) == -1)
+			{
+				printf("Error at %d: SDL Error: %s\nRefusing to continue.\n", __LINE__, SDL_GetError());
+				return -1;
+			}	
 
 			// copy framebuffer
 			u32* s = (u32*)screen->pixels;
@@ -313,10 +330,16 @@ int main(int argc, char **argv)
 
 			// flip screen
 			SDL_UnlockSurface(screen);
-			SDL_Flip(screen);
+			if(SDL_Flip(screen) == -1)
+			{
+				// Didn't flippin' work for some reason.
+				printf("Error at %d: SDL Error: %s\nRefusing to continue.\n", __LINE__, SDL_GetError());
+				return -1;
+			}	
 
 			//old_ticks = new_ticks;
 			new_ticks = SDL_GetTicks();
+	
 			frames++;
 			if (frames % 0x80 == 0)
 			{
@@ -327,6 +350,7 @@ int main(int argc, char **argv)
 				SDL_WM_SetCaption(window_caption_fps, 0);
 			}
 
+			/* TODO: Add automatic frameskip */
 			// Cap at 60FPS unless using frameskip
 			if (!frameskip)
 			{
@@ -337,7 +361,8 @@ int main(int argc, char **argv)
 	}
 
 	// Save game before exit
-	if (save_size)        {
+	if (save_size)
+	{
 		save_f = fopen(save_file, "wb");
 		if (save_f)
 		{
@@ -354,4 +379,3 @@ int main(int argc, char **argv)
 
 	return 0;
 }
-
