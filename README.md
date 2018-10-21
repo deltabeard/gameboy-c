@@ -1,4 +1,7 @@
+Note: This project is no longer in active development. Please consider looking at my other Game Boy emulator project [peanut-gb](https://github.com/deltabeard/peanut-gb).
+
 # GameBoy Emulator
+
 A Gameboy emulator written by gregtour. His Javascript port can be found here: http://greg.team-duck.com/emu/gameboy .
 
 ## Features:
