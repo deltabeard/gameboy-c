@@ -10,8 +10,7 @@
 #include <unistd.h>
 
 // SDL
-#include <SDL/SDL.h>
-#include <SDL/SDL_main.h>
+#include "SDL.h"
 
 // GameBoy
 #include "gameboy.h"
@@ -97,14 +96,13 @@ int main(int argc, char **argv)
 	int     delay;
 	u32*    s;
 	int     quit_seq;
-	SDL_Surface* screen = NULL;
-	int		SCR_WIDTH;
-	int		SCR_HEIGHT;
 	u32		fb[LCD_HEIGHT][LCD_WIDTH];
 	char	*rom_file = NULL;
+	SDL_Window *win = NULL;
+	SDL_Renderer *ren = NULL;
+	SDL_Texture *tex = NULL;
 
 	int c;
-	int magnify = 1;
 
 	while((c = getopt(argc, argv, "hm:f:")) != -1)
 	{
@@ -112,9 +110,6 @@ int main(int argc, char **argv)
 			case 'h':
 				printf("Usage: %s [-m magnification] -f GB_ROM\n", argv[0]);
 				return 0;
-			case 'm':
-				magnify = atoi(optarg);
-				break;
 			case 'f':
 				rom_file = optarg;
 				break;
@@ -129,24 +124,6 @@ int main(int argc, char **argv)
 		printf("Please specify a file to load.\nUse -h to see help.\n");
 		return -1;
 	}
-
-	/* A magnification higher than 10 will make emulation very slow */
-	if(magnify > 10)
-	{
-		printf("You want to use a magnification of %d times!?\n"
-				"Don't be ridiculous\n"
-				"Error: The maximum magnification is 10.", magnify);
-		return -1;
-	}
-
-	if(magnify < 1)
-	{
-		printf("Error: Magnification has to be at least 1.\n");
-		return -1;
-	}
-
-	SCR_WIDTH = 160 * magnify;
-	SCR_HEIGHT = 144 * magnify;
 
 	// Load ROM file
 	if((access(rom_file, F_OK) != -1) &&
@@ -167,17 +144,20 @@ int main(int argc, char **argv)
 #else
 	SDL_Init(SDL_INIT_VIDEO);
 #endif
-
-	screen = SDL_SetVideoMode(SCR_WIDTH, SCR_HEIGHT, 32, SDL_HWSURFACE | SDL_DOUBLEBUF /*| SDL_FULLSCREEN*/);
-	SDL_WM_SetCaption("GameBoy", 0);
+	SDL_CreateWindowAndRenderer(LCD_WIDTH, LCD_HEIGHT, SDL_WINDOW_RESIZABLE,
+		&win, &ren);
+	SDL_assert(win != NULL);
+	SDL_assert(ren != NULL);
+	tex = SDL_CreateTexture(ren,
+				    SDL_PIXELFORMAT_RGBA32,
+				    SDL_TEXTUREACCESS_STREAMING,
+				    LCD_WIDTH, LCD_HEIGHT);
+	SDL_assert(tex != NULL);
 
 	// Start Audio
 #if _SOUND_H
 	SDLAudioStart();
 #endif // _SOUND_H
-
-	sprintf(window_caption, "GameBoy - %s", rom_file);
-	SDL_WM_SetCaption(window_caption, 0);
 
 	fseek(rom_f, 0, SEEK_END);
 	rom_size = ftell(rom_f);
@@ -300,20 +280,10 @@ int main(int argc, char **argv)
 						fb[y][x] = color_map[gb_fb[y][x] & 3];
 
 			// render
-			SDL_LockSurface(screen);
-
-			// copy framebuffer
-			u32* s = (u32*)screen->pixels;
-			for (y = 0; y < SCR_HEIGHT; y++)
-			{
-				for (x = 0; x < SCR_WIDTH; x++)
-					*(s + x) = fb[y*LCD_HEIGHT/SCR_HEIGHT][x*LCD_WIDTH/SCR_WIDTH];
-				s += screen->pitch/4;
-			}
-
-			// flip screen
-			SDL_UnlockSurface(screen);
-			SDL_Flip(screen);
+			SDL_UpdateTexture(tex, NULL, fb, LCD_WIDTH * sizeof(uint32_t));
+			SDL_RenderClear(ren);
+			SDL_RenderCopy(ren, tex, NULL, NULL);
+			SDL_RenderPresent(ren);
 
 			//old_ticks = new_ticks;
 			new_ticks = SDL_GetTicks();
@@ -324,7 +294,7 @@ int main(int argc, char **argv)
 				f1_ticks = new_ticks;
 				fps = (128*1000)/(f1_ticks - f0_ticks) * (gb_frameskip ? gb_frameskip : 1);
 				sprintf(window_caption_fps, "%s - %u fps", window_caption, fps);
-				SDL_WM_SetCaption(window_caption_fps, 0);
+				SDL_SetWindowTitle(win, window_caption_fps);
 			}
 
 			// Cap at 60FPS unless using frameskip
